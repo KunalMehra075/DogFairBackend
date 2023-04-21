@@ -1,11 +1,12 @@
 const express = require("express");
 const dogsRouter = express.Router()
 const fs = require("fs")
-
+let DBpath = __dirname + "/db.json"
+let RDpath = __dirname + "/randomImages.json"
 //!GET A DOG
 dogsRouter.get("/", async (req, res) => {
     try {
-        const Data = fs.readFileSync("./config/db.json", "utf-8")
+        const Data = fs.readFileSync(DBpath, "utf-8")
         res.json(JSON.parse(Data));
     } catch (err) {
         console.log(err);
@@ -16,7 +17,7 @@ dogsRouter.get("/", async (req, res) => {
 dogsRouter.get("/id/:id", async (req, res) => {
     let id = req.params.id
     try {
-        const Data = JSON.parse(fs.readFileSync("./config/db.json", "utf-8")).dogs
+        const Data = JSON.parse(fs.readFileSync(DBpath, "utf-8")).dogs
         let instance = Data.filter((item) => item.id == id)[0]
         console.log(instance);
         res.json(instance);
@@ -29,12 +30,12 @@ dogsRouter.get("/id/:id", async (req, res) => {
 //!POST A DOG
 dogsRouter.post("/create", async (req, res) => {
     let dog = req.body
-    let dogs = JSON.parse(fs.readFileSync("./config/db.json", "utf-8")).dogs
+    let dogs = JSON.parse(fs.readFileSync(DBpath, "utf-8")).dogs
     dog.id = dog.name + dog.age
     console.log("To Add", dog);
     dogs.push(dog)
     try {
-        fs.writeFileSync("./config/db.json", JSON.stringify({ dogs: dogs }))
+        fs.writeFileSync(DBpath, JSON.stringify({ dogs: dogs }))
         res.json({ Message: "New Dog Created", create: "true" });
     } catch (err) {
         console.log(err);
@@ -46,9 +47,9 @@ dogsRouter.post("/create", async (req, res) => {
 dogsRouter.delete("/delete/:id", async (req, res) => {
     let id = req.params.id
     try {
-        let dogs = JSON.parse(fs.readFileSync("./config/db.json", "utf-8")).dogs
+        let dogs = JSON.parse(fs.readFileSync(DBpath, "utf-8")).dogs
         dogs = dogs.filter((item) => item.id != id)
-        fs.writeFileSync("./config/db.json", JSON.stringify({ dogs: dogs }))
+        fs.writeFileSync(DBpath, JSON.stringify({ dogs: dogs }))
         res.json({ Message: `Dog Deleted with ID ${id}`, deleted: "true" });
     } catch (err) {
         console.log(err);
@@ -60,7 +61,7 @@ dogsRouter.patch("/edit/:id", async (req, res) => {
     let id = req.params.id
     let payload = req.body
     try {
-        let dogs = JSON.parse(fs.readFileSync("./config/db.json", "utf-8")).dogs
+        let dogs = JSON.parse(fs.readFileSync(DBpath, "utf-8")).dogs
         for (let doggo of dogs) {
             if (doggo.id == id) {
                 console.log(doggo);
@@ -71,7 +72,7 @@ dogsRouter.patch("/edit/:id", async (req, res) => {
                 break
             }
         }
-        fs.writeFileSync("./config/db.json", JSON.stringify({ dogs: dogs }))
+        fs.writeFileSync(DBpath, JSON.stringify({ dogs: dogs }))
         res.json({ Message: `Dog Updated with ID ${id}`, edited: "true" });
     } catch (err) {
         console.log(err);
@@ -84,10 +85,10 @@ dogsRouter.patch("/edit/:id", async (req, res) => {
 //!Random img A DOG
 dogsRouter.post("/image", async (req, res) => {
     let image = req.body.image
-    let Images = JSON.parse(fs.readFileSync("./config/randomImages.json", "utf-8")).Images
+    let Images = JSON.parse(fs.readFileSync(RDpath, "utf-8")).Images
     Images.push(image)
     try {
-        fs.writeFileSync("./config/randomImages.json", JSON.stringify({ Images: Images }))
+        fs.writeFileSync(RDpath, JSON.stringify({ Images: Images }))
         res.json({ Message: "New Image Added", create: "true" });
     } catch (err) {
         console.log(err);
@@ -97,7 +98,7 @@ dogsRouter.post("/image", async (req, res) => {
 // ! GET RANDOM IMAGES
 dogsRouter.get("/getrandomimages", async (req, res) => {
     try {
-        let Images = JSON.parse(fs.readFileSync("./config/randomImages.json", "utf-8")).Images
+        let Images = JSON.parse(fs.readFileSync(RDpath, "utf-8")).Images
         res.json({ Message: "Images Are Here", Images: Images });
     } catch (err) {
         console.log(err);
